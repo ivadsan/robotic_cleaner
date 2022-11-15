@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>let's save the corals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0px;
+        padding: 0px;
+      }
+      body {
+        background-color: aquamarine;
+        font-family: "Roboto", sans-serif;
+      }
+
+      #ocean {
+        background-image: url(/assets/water.jpeg);
+        height: 100vh;
+        width: 100vw;
+        margin: auto;
+        position: relative;
+      }
+      #robot {
+        width: 150px;
+        height: 150px;
+        display: inline-block;
+        position: absolute;
+        bottom: 0;
+        z-index: 3;
+        transition: 300ms;
+      }
+
+      .right {
+        transform: rotate(90deg);
+      }
+
+      .left {
+        transform: rotate(270deg);
+      }
+      .up {
+        transform: rotate(0deg);
+      }
+      .down {
+        transform: rotate(180deg);
+      }
+
+      .trash {
+        height: 60px;
+        display: inline-block;
+        position: absolute;
+        z-index: 1;
+      }
+
+      .overlay {
+        height: 100vh;
+        width: 100vw;
+        background-color: rgba(0, 0, 0, 0.7);
+        position: fixed;
+        z-index: 100;
+        transition: 300ms;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        opacity: 0;
+        transform: scale(0.1);
+        transition: 300ms;
+      }
+
+      h1 {
+        color: aqua;
+        font-size: 48px;
+        margin-bottom: 24px;
+      }
+
+      p {
+        color: whitesmoke;
+        font-size: 36px;
+        margin: 32px 0px 64px;
+      }
+      button {
+        background-color: cornflowerblue;
+        color: whitesmoke;
+        padding: 16px 32px;
+        font-size: 32px;
+        border-radius: 25px;
+        cursor: pointer;
+        border: none;
+      }
+      button:hover {
+        transform: scale(1.1);
+      }
+      button:active {
+        transform: scale(0.9);
+      }
+      .avatar {
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        background-image: url("assets/avatar.jpeg");
+        background-size: cover;
+      }
+
+      .open{
+        /* display: flex; */
+        opacity: 1;
+        transform: scale(1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay" id="overlay">
+      <h1>Victory</h1>
+      <div class="avatar"></div>
+      <p>You saved the corals from the trash!</p>
+      <button id="button">Do it again</button>
+    </div>
+    <div id="ocean">
+      <img src="/assets/robot.png" id="robot" alt="" />
+      <img src="/assets/waste.png" class="trash" id="trash1" />
+      <img src="/assets/waste.png" class="trash" id="trash2" />
+      <img src="/assets/waste.png" class="trash" id="trash3" />
+      <img src="/assets/waste.png" class="trash" id="trash4" />
+      <img src="/assets/waste.png" class="trash" id="trash5" />
+    </div>
+    <script>
+      const robot = document.querySelector("#robot");
+      const ocean = document.querySelector("#ocean");
+      const trash1 = document.querySelector("#trash1");
+      const trash2 = document.querySelector("#trash2");
+      const trash3 = document.querySelector("#trash3");
+      const trash4 = document.querySelector("#trash4");
+      const trash5 = document.querySelector("#trash5");
+      const overlay = document.querySelector("#overlay");
+      const button = document.querySelector("#button");
+
+      button.addEventListener('click',function(){
+        window.location.reload()
+      })
+
+      const robotHeight = 170;
+      const robotWidth = 170;
+      const step = 70;
+      const precision = 50;
+
+      let trash1Status = true;
+      let trash2Status = true;
+      let trash3Status = true;
+      let trash4Status = true;
+      let trash5Status = true;
+
+      let score = 0;
+
+      document.onkeydown = checkKey;
+
+      function checkKey(e) {
+        e = e || window.event;
+        const left = getOffset(robot).left;
+        const top = getOffset(robot).top;
+
+        clearPosition();
+
+        if (e.keyCode == "38") {
+          robot.classList.add("up");
+
+          if (top + -step > 0) {
+            robot.style.top = `${top + -step}px`;
+          }
+        } else if (e.keyCode == "40") {
+          robot.classList.add("down");
+
+          if (ocean.clientHeight - robotHeight > top) {
+            robot.style.top = `${top + step}px`;
+          }
+        } else if (e.keyCode == "37") {
+          robot.classList.add("left");
+          if (left > 0) {
+            robot.style.left = `${left + -step}px`;
+          }
+        } else if (e.keyCode == "39") {
+          robot.classList.add("right");
+          if (ocean.clientWidth - robotWidth > left) {
+            robot.style.left = `${left + step}px`;
+          }
+        }
+        checkClear();
+      }
+
+      function clearPosition() {
+        robot.classList.remove("up");
+        robot.classList.remove("down");
+        robot.classList.remove("left");
+        robot.classList.remove("right");
+      }
+
+      function getOffset(el) {
+        const rect = el.getBoundingClientRect();
+        return {
+          left: rect.left + window.scrollX,
+          top: rect.top + window.scrollY,
+        };
+      }
+
+      function checkClear() {
+        const robotLeft = getOffset(robot).left;
+        const robotTop = getOffset(robot).top;
+
+        const trash1Left = getOffset(trash1).left;
+        const trash1Top = getOffset(trash1).top;
+
+        const trash2Left = getOffset(trash2).left;
+        const trash2Top = getOffset(trash2).top;
+
+        const trash3Left = getOffset(trash3).left;
+        const trash3Top = getOffset(trash3).top;
+
+        const trash4Left = getOffset(trash4).left;
+        const trash4Top = getOffset(trash4).top;
+
+        const trash5Left = getOffset(trash5).left;
+        const trash5Top = getOffset(trash5).top;
+
+        if (
+          robotLeft > trash1Left - precision &&
+          robotLeft < trash1Left + precision &&
+          robotTop > trash1Top - precision &&
+          robotTop < trash1Top + precision &&
+          trash1Status
+        ) {
+          trash1.style.display = "none";
+          trash1Status = false;
+          addScore();
+        }
+
+        if (
+          robotLeft > trash2Left - precision &&
+          robotLeft < trash2Left + precision &&
+          robotTop > trash2Top - precision &&
+          robotTop < trash2Top + precision &&
+          trash2Status
+        ) {
+          trash2.style.display = "none";
+          trash2Status = false;
+          addScore();
+        }
+
+        if (
+          robotLeft > trash3Left - precision &&
+          robotLeft < trash3Left + precision &&
+          robotTop > trash3Top - precision &&
+          robotTop < trash3Top + precision &&
+          trash3Status
+        ) {
+          trash3.style.display = "none";
+          trash3Status = false;
+          addScore();
+        }
+
+        if (
+          robotLeft > trash4Left - precision &&
+          robotLeft < trash4Left + precision &&
+          robotTop > trash4Top - precision &&
+          robotTop < trash4Top + precision &&
+          trash4Status
+        ) {
+          trash4.style.display = "none";
+          trash4Status = false;
+          addScore();
+        }
+
+        if (
+          robotLeft > trash5Left - precision &&
+          robotLeft < trash5Left + precision &&
+          robotTop > trash5Top - precision &&
+          robotTop < trash5Top + precision &&
+          trash5Status
+        ) {
+          trash5.style.display = "none";
+          trash5Status = false;
+          addScore();
+        }
+      }
+
+      function randomPosition(elm) {
+        const min = 1;
+
+        const left = Math.floor(
+          Math.random() * (ocean.clientWidth - 100 - min + 1) + min
+        );
+        const top = Math.floor(
+          Math.random() * (ocean.clientHeight - 100 - min + 1) + min
+        );
+        elm.style.left = left + "px";
+        elm.style.top = top + "px";
+      }
+
+      randomPosition(trash1);
+      randomPosition(trash2);
+      randomPosition(trash3);
+      randomPosition(trash4);
+      randomPosition(trash5);
+
+      function addScore() {
+        score++;
+        if (score === 5) {
+          overlay.classList.add('open')
+        }
+      }
+
+
+      
+    </script>
+  </body>
+</html>
